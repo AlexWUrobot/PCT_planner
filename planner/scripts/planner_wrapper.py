@@ -86,9 +86,10 @@ class TomogramPlanner(object):
             -trav_gx.reshape(-1, trav_gx.shape[-1]).astype(np.double)
         )
 
-    def plan(self, start_pos, end_pos):
-        # TODO: calculate slice index. By default the start and end pos are all at slice 0
+    def plan(self, start_pos, end_pos, start_layer=0, end_layer=0):
+        self.start_idx[0] = start_layer
         self.start_idx[1:] = self.pos2idx(start_pos)
+        self.end_idx[0] = end_layer
         self.end_idx[1:] = self.pos2idx(end_pos)
 
         self.planner.plan(self.start_idx, self.end_idx, True)

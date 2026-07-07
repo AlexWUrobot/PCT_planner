@@ -138,24 +138,75 @@ The source code is released under [GPLv2](http://www.gnu.org/licenses/) license.
 
 For commercial use, please contact Bowen Yang [byangar@connect.ust.hk](mailto:byangar@connect.ust.hk).
 
+## Quick Start (ROS2 Humble)
 
+Open **three terminals**. In each, first run:
 
+```bash
+source ~/.bashrc
+source /path/to/PCT_planner/pct_env/bin/activate
+```
 
-In termianl 1
+### Terminal 1 — Tomogram Construction
 
-~/PCT_planner$ source ~/.bashrc
-source /home/lifan/PCT_planner/pct_env/bin/activate
-cd /home/lifan/PCT_planner/tomography/scripts
+```bash
+cd tomography/scripts/
 python3 tomography.py --scene Spiral
+```
 
+### Terminal 2 — RViz2 Visualization
 
-In termianl 2
-~/PCT_planner$ source ~/.bashrc
-source /home/lifan/PCT_planner/pct_env/bin/activate
-~/PCT_planner$ rviz2 -d rsc/rviz/pct_ros.rviz
+```bash
+cd /path/to/PCT_planner
+rviz2 -d rsc/rviz/pct_ros.rviz
+```
 
+### Terminal 3 — Trajectory Planning
 
-In termianl 3
-~/PCT_planner$ source ~/.bashrc
-source /home/lifan/PCT_planner/pct_env/bin/activate
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/PCT_planner/planner/lib/3rdparty/gtsam-4.1.1/install/lib
+```bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/PCT_planner/planner/lib/3rdparty/gtsam-4.1.1/install/lib:/path/to/PCT_planner/planner/lib/build/src/common/smoothing
+cd planner/scripts/
+python3 plan.py --scene Spiral
+```
+
+## Configuration
+
+### Planner Input (`planner/scripts/plan.py`)
+
+| Parameter | Description |
+|---|---|
+| `start_pos` | Start position in meters `[x, y]` (map frame) |
+| `end_pos` | Goal position in meters `[x, y]` (map frame) |
+| `start_layer` | Start layer index (0 = ground floor) |
+| `end_layer` | Goal layer index |
+
+The Z coordinate (height) is automatically determined by the tomogram layer. You only specify the 2D position and which layer to start/end on.
+
+### Tomogram Slicing (`tomography/config/scene_*.py`)
+
+| Parameter | Description | Default |
+|---|---|---|
+| `map.resolution` | Grid cell size in meters | `0.20` |
+| `map.slice_dh` | Height per initial slice (meters) | `0.5` |
+| `map.ground_h` | Ground plane height | `0.0` |
+
+The number of **final layers** is automatically determined by layer simplification: initial slices that don't contain unique traversable surfaces are merged. Smaller `slice_dh` → more initial slices → potentially more final layers.
+
+### Traversability Parameters (`tomography/config/scene_*.py`)
+
+| Parameter | Description |
+|---|---|
+| `trav.slope_max` | Maximum traversable slope (radians) |
+| `trav.step_max` | Maximum step height (meters) |
+| `trav.safe_margin` | Obstacle clearance distance (meters) |
+| `trav.inflation` | Cost inflation radius (meters) |
+
+## Troubleshooting
+
+| Issue | Fix |
+|---|---|
+| `cudaErrorUnknown` / `cuInit() = 999` | GPU driver in bad state. Run `sudo reboot` |
+| CycloneDDS `enp130s0 does not match` | Set `CYCLONEDDS_URI` in `~/.bashrc` to use loopback: `export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo"/></Interfaces></General></Domain></CycloneDDS>'` |
+| RViz2 shows empty topics | Start RViz2 **before** or at the same time as the publisher nodes (QoS: TRANSIENT_LOCAL) |
+| `Segmentation fault` in planner | Ensure `libcommon_smoothing.so` path is in `LD_LIBRARY_PATH` |
+| `source ~/.bashrc` deactivates venv | Re-activate with `source pct_env/bin/activate` after sourcing bashrc |
