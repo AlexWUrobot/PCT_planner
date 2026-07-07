@@ -32,14 +32,51 @@ If you use PCT Planner, please cite the following paper:
 ### Environment
 
 - Ubuntu >= 20.04
-- ROS >= Noetic with ros-desktop-full installation
+- ROS2 Humble with desktop-full installation (`ros-humble-desktop`)
 - CUDA >= 11.7
 
 ### Python
 
-- Python >= 3.8
-- [CuPy](https://docs.cupy.dev/en/stable/install.html) with CUDA >= 11.7
+- Python >= 3.10 (bundled with Ubuntu 22.04)
+- [CuPy](https://docs.cupy.dev/en/stable/install.html) matching your CUDA version
 - Open3d
+
+## Setup
+
+### 1. Source ROS2 Humble
+
+Add this to your `~/.bashrc` (run once):
+
+```bash
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
+
+### 2. Create Virtual Environment
+
+ROS2 Humble requires **Python 3.10**. The venv must use `--system-site-packages` so that ROS2 Python packages (`rclpy`, `sensor_msgs_py`, etc.) remain accessible:
+
+```bash
+python3.10 -m venv pct_env --system-site-packages
+source pct_env/bin/activate
+```
+
+To activate the environment in future sessions:
+
+```bash
+source pct_env/bin/activate
+```
+
+### 3. Install Python Dependencies
+
+```bash
+pip install open3d numpy
+# Install CuPy matching your CUDA version (check with: nvidia-smi)
+# CUDA 12.x:
+# pip install cupy-cuda12x
+# CUDA 13.x:
+pip install cupy-cuda13x
+```
 
 ## Build & Install
 
@@ -65,15 +102,21 @@ Three example scenarios are provided: **"Spiral"**, **"Building"**, and **"Plaza
 To plan in a scenario, first you need to construct the scene tomogram using the pcd file.
 - Unzip the pcd files in **rsc/pcd/pcd_files.zip** to **rsc/pcd/**.
 - For scene **"Spiral"**, you can download the pcd file from [3D2M planner spiral0.3_2.pcd](https://github.com/ZJU-FAST-Lab/3D2M-planner/tree/main/planner/src/read_pcd/PCDFiles).
-- Run **roscore**, start **RViz** with the provided config (**rsc/rviz/pct_ros.rviz**). 
-- In **tomography/scripts/**, run **tomography.py** with the **--scene** argument:
+- Start **RViz2** with the provided config:
 
 ```bash
+rviz2 -d rsc/rviz/pct_ros.rviz
+```
+
+- Activate your virtual environment and, in **tomography/scripts/**, run **tomography.py** with the **--scene** argument:
+
+```bash
+source pct_env/bin/activate
 cd tomography/scripts/
 python3 tomography.py --scene Spiral
 ```
 
-- The generated tomogram is visualized as ROS PointCloud2 message in RViz and saved in **rsc/tomogram/**.
+- The generated tomogram is visualized as ROS2 PointCloud2 message in RViz2 and saved in **rsc/tomogram/**.
 
 ### Trajectory Generation 
 
@@ -81,15 +124,31 @@ After the tomogram is constructed, you can run the trajectory generation example
 - In **planner/scripts/**, run **plan.py** with the **--scene** argument:
 
 ```bash
+source pct_env/bin/activate
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/YOUR/DIRECTORY/TO/PCT_planner/planner/lib/3rdparty/gtsam-4.1.1/install/lib
 cd planner/scripts/
 python3 plan.py --scene Spiral
 ```
 
-- The generated trajectory is visualized as ROS Path message in RViz.
+- The generated trajectory is visualized as ROS2 Path message in RViz2.
 
 ## License
 
 The source code is released under [GPLv2](http://www.gnu.org/licenses/) license.
 
 For commercial use, please contact Bowen Yang [byangar@connect.ust.hk](mailto:byangar@connect.ust.hk).
+
+
+
+
+In termianl 1
+
+~/PCT_planner$ source ~/.bashrc
+source /home/lifan/PCT_planner/pct_env/bin/activate
+cd /home/lifan/PCT_planner/tomography/scripts
+python3 tomography.py --scene Spiral
+
+
+In termianl 2
+
+~/PCT_planner$ rviz2 -d rsc/rviz/pct_ros.rviz

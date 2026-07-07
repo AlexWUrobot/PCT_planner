@@ -2,7 +2,9 @@ import sys
 import argparse
 import numpy as np
 
-import rospy
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, DurabilityPolicy, HistoryPolicy
 from nav_msgs.msg import Path
 
 from utils import *
@@ -30,21 +32,30 @@ else:
     start_pos = np.array([0.0, 0.0], dtype=np.float32)
     end_pos = np.array([23.0, 10.0], dtype=np.float32)
 
-path_pub = rospy.Publisher("/pct_path", Path, latch=True, queue_size=1)
-planner = TomogramPlanner(cfg)
 
-def pct_plan():
-    planner.loadTomogram(tomo_file)
+class PlannerNode(Node):
+    def __init__(self):
+        super().__init__('pct_planner')
+        latched_qos = QoSProfile(
+            depth=1,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            history=HistoryPolicy.KEEP_LAST,
+        )
+        self.path_pub = self.create_publisher(Path, '/pct_path', latched_qos)
+        self.planner = TomogramPlanner(cfg)
 
-    traj_3d = planner.plan(start_pos, end_pos)
-    if traj_3d is not None:
-        path_pub.publish(traj2ros(traj_3d))
-        print("Trajectory published")
+    def pct_plan(self):
+        self.planner.loadTomogram(tomo_file)
+        traj_3d = self.planner.plan(start_pos, end_pos)
+        if traj_3d is not None:
+            self.path_pub.publish(traj2ros(traj_3d))
+            print("Trajectory published")
 
 
 if __name__ == '__main__':
-    rospy.init_node("pct_planner", anonymous=True)
-
-    pct_plan()
-
-    rospy.spin()
+    rclpy.init()
+    node = PlannerNode()
+    node.pct_plan()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
