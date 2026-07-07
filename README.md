@@ -125,7 +125,7 @@ After the tomogram is constructed, you can run the trajectory generation example
 
 ```bash
 source pct_env/bin/activate
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/YOUR/DIRECTORY/TO/PCT_planner/planner/lib/3rdparty/gtsam-4.1.1/install/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/YOUR/DIRECTORY/TO/PCT_planner/planner/lib/3rdparty/gtsam-4.1.1/install/lib:/YOUR/DIRECTORY/TO/PCT_planner/planner/lib/build/src/common/smoothing
 cd planner/scripts/
 python3 plan.py --scene Spiral
 ```
@@ -150,5 +150,12 @@ python3 tomography.py --scene Spiral
 
 
 In termianl 2
-
+~/PCT_planner$ source ~/.bashrc
+source /home/lifan/PCT_planner/pct_env/bin/activate
 ~/PCT_planner$ rviz2 -d rsc/rviz/pct_ros.rviz
+
+
+In termianl 3
+~/PCT_planner$ source ~/.bashrc
+source /home/lifan/PCT_planner/pct_env/bin/activate
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/PCT_planner/planner/lib/3rdparty/gtsam-4.1.1/install/lib
