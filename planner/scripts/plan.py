@@ -32,6 +32,12 @@ elif args.scene == 'Building':
     end_pos = np.array([-6.0, -1.0], dtype=np.float32)
     start_layer = 0
     end_layer = 0
+elif args.scene == 'Isaacsim':
+    tomo_file = 'utlidar_test_downsampled'
+    start_pos = np.array([-9.3, -20.7], dtype=np.float32)
+    end_pos = np.array([-23.5, 23.7], dtype=np.float32)
+    start_layer = 0
+    end_layer = 0
 else:
     tomo_file = 'plaza3_10'
     start_pos = np.array([0.0, 0.0], dtype=np.float32)
