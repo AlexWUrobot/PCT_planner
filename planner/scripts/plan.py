@@ -38,6 +38,12 @@ elif args.scene == 'Isaacsim':
     end_pos = np.array([-23.5, 23.7], dtype=np.float32)
     start_layer = 0
     end_layer = 0
+elif args.scene == 'Openmind':
+    tomo_file = 'scans_20260708_140737_ds37'
+    start_pos = np.array([3.8, 6.9], dtype=np.float32)
+    end_pos = np.array([1.1, -9.0], dtype=np.float32)
+    start_layer = 5
+    end_layer = 5
 else:
     tomo_file = 'plaza3_10'
     start_pos = np.array([0.0, 0.0], dtype=np.float32)
